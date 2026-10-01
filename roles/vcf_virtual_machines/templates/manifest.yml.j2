@@ -1,0 +1,5 @@
+{% set metadata = {'name': item.name, 'namespace': item.namespace} | combine(item.metadata | default({}), recursive=True) %}
+{% set cloud_init = {'bootstrap': {'cloudInit': {'rawCloudConfig': {'name': item.name ~ '-cloud-init', 'key': 'user-data'}}}} if item.cloud_init is defined else {} %}
+{% set spec = (item.spec | default({})) | combine(cloud_init, recursive=True) %}
+{% set document = {'apiVersion': 'vmoperator.vmware.com/v1alpha3', 'kind': 'VirtualMachine', 'metadata': metadata, 'spec': spec} %}
+{{ document | combine(item.manifest_overrides | default({}), recursive=True) | to_nice_yaml(indent=2) }}

@@ -1,0 +1,50 @@
+---
+- name: Validate requested state and resources
+  ansible.builtin.assert:
+    that:
+      - vcf_resource_state in ['present', 'absent']
+      - item.name is defined
+      - item.name | length > 0
+      - item.namespace is defined
+      - vcf_resource_state == 'absent' or item.spec is defined
+      - vcf_resource_state == 'absent' or item.spec.className is defined
+      - vcf_resource_state == 'absent' or item.spec.imageName is defined
+      - vcf_resource_state == 'absent' or item.spec.storageClass is defined
+  loop: "{{ vcf_virtual_machines }}"
+  loop_control:
+    label: "{{ item.name | default('unnamed') }}"
+
+- name: Create cloud-init Secrets before virtual machines
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('ansible.builtin.template', 'cloud-init-secret.yml.j2') | from_yaml }}"
+    wait: true
+  loop: "{{ vcf_virtual_machines }}"
+  loop_control:
+    label: "{{ item.namespace }}/{{ item.name }}-cloud-init"
+  when:
+    - vcf_resource_state == 'present'
+    - item.cloud_init is defined
+  no_log: true
+
+- name: Manage virtual machines
+  kubernetes.core.k8s:
+    state: "{{ vcf_resource_state }}"
+    definition: "{{ lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml }}"
+    wait: true
+  loop: "{{ vcf_virtual_machines }}"
+  loop_control:
+    label: "{{ item.namespace | default('cluster') }}/{{ item.name }}"
+
+- name: Delete cloud-init Secrets after virtual machines
+  kubernetes.core.k8s:
+    state: absent
+    definition: "{{ lookup('ansible.builtin.template', 'cloud-init-secret.yml.j2') | from_yaml }}"
+    wait: true
+  loop: "{{ vcf_virtual_machines }}"
+  loop_control:
+    label: "{{ item.namespace }}/{{ item.name }}-cloud-init"
+  when:
+    - vcf_resource_state == 'absent'
+    - item.cloud_init is defined
+  no_log: true

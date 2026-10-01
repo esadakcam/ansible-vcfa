@@ -1,0 +1,11 @@
+---
+argument_specs:
+  main:
+    short_description: Manage a VCF CLI CCI context
+    options:
+      vcf_context_name: {type: str, required: true}
+      vcf_context_endpoint: {type: str}
+      vcf_context_tenant_name: {type: str}
+      vcf_context_api_token: {type: str, no_log: true}
+      vcf_cli_path: {type: path, default: vcf}
+      vcf_context_state: {type: str, choices: [present, replace, absent], default: present}

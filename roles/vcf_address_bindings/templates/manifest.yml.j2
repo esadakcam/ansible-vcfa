@@ -1,0 +1,4 @@
+{% set metadata = {'name': item.name, 'namespace': item.namespace} | combine(item.metadata | default({}), recursive=True) %}
+{% set spec = {'vpcRef': {'name': item.vpc_name | default('')}, 'workloadRef': {'apiVersion': 'vmoperator.vmware.com/v1alpha3', 'kind': 'VirtualMachine', 'name': item.vm_name | default('')}} | combine(item.spec | default({}), recursive=True) %}
+{% set document = {'apiVersion': 'networking.cci.vmware.com/v1alpha1', 'kind': 'AddressBinding', 'metadata': metadata, 'spec': spec} %}
+{{ document | combine(item.manifest_overrides | default({}), recursive=True) | to_nice_yaml(indent=2) }}

@@ -1,0 +1,20 @@
+---
+- name: Validate requested state and resources
+  ansible.builtin.assert:
+    that:
+      - vcf_resource_state in ['present', 'absent']
+      - item.name is defined
+      - item.name | length > 0
+
+  loop: "{{ vcf_projects }}"
+  loop_control:
+    label: "{{ item.name | default('unnamed') }}"
+
+- name: Manage projects
+  kubernetes.core.k8s:
+    state: "{{ vcf_resource_state }}"
+    definition: "{{ lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml }}"
+    wait: true
+  loop: "{{ vcf_projects }}"
+  loop_control:
+    label: "{{ item.namespace | default('cluster') }}/{{ item.name }}"

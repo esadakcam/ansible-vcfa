@@ -1,0 +1,7 @@
+---
+vcf_context_name: ansible-vcfa
+vcf_context_endpoint: ""
+vcf_context_tenant_name: ""
+vcf_context_api_token: "{{ lookup('ansible.builtin.env', 'VCF_API_TOKEN') }}"
+vcf_cli_path: vcf
+vcf_context_state: present
