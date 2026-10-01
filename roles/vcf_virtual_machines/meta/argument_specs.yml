@@ -13,11 +13,12 @@ argument_specs:
         required: true
         options:
           name: {type: str, required: true}
-          namespace: {type: str}
+          labels: {type: dict}
+          annotations: {type: dict}
           metadata: {type: dict}
-          spec: {type: dict}
-          manifest_overrides: {type: dict}
+          spec_overrides: {type: dict}
+          namespace: {type: str}
+          class_name: {type: str}
+          image_name: {type: str}
+          storage_class: {type: str}
           cloud_init: {type: str, no_log: true}
-          cloud_init_metadata: {type: dict}
-          vpc_name: {type: str}
-          vm_name: {type: str}

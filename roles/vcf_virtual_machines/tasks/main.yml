@@ -6,10 +6,10 @@
       - item.name is defined
       - item.name | length > 0
       - item.namespace is defined
-      - vcf_resource_state == 'absent' or item.spec is defined
-      - vcf_resource_state == 'absent' or item.spec.className is defined
-      - vcf_resource_state == 'absent' or item.spec.imageName is defined
-      - vcf_resource_state == 'absent' or item.spec.storageClass is defined
+      - vcf_resource_state == 'absent' or item.class_name is defined
+      - vcf_resource_state == 'absent' or item.class_name | length > 0
+      - vcf_resource_state == 'absent' or item.image_name is defined and item.image_name | length > 0
+      - vcf_resource_state == 'absent' or item.storage_class is defined and item.storage_class | length > 0
   loop: "{{ vcf_virtual_machines }}"
   loop_control:
     label: "{{ item.name | default('unnamed') }}"
@@ -30,7 +30,13 @@
 - name: Manage virtual machines
   kubernetes.core.k8s:
     state: "{{ vcf_resource_state }}"
-    definition: "{{ lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml }}"
+    definition: >-
+      {{ (lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml)
+         | combine({'metadata': (item.metadata | default({}))
+                                | combine({'labels': item.labels | default({}),
+                                           'annotations': item.annotations | default({})},
+                                          recursive=true),
+                    'spec': item.spec_overrides | default({})}, recursive=true) }}
     wait: true
   loop: "{{ vcf_virtual_machines }}"
   loop_control:

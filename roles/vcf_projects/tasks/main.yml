@@ -13,7 +13,13 @@
 - name: Manage projects
   kubernetes.core.k8s:
     state: "{{ vcf_resource_state }}"
-    definition: "{{ lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml }}"
+    definition: >-
+      {{ (lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml)
+         | combine({'metadata': (item.metadata | default({}))
+                                | combine({'labels': item.labels | default({}),
+                                           'annotations': item.annotations | default({})},
+                                          recursive=true),
+                    'spec': item.spec_overrides | default({})}, recursive=true) }}
     wait: true
   loop: "{{ vcf_projects }}"
   loop_control:

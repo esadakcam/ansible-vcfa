@@ -1,3 +1,6 @@
-{% set metadata = {'name': item.name} | combine(item.metadata | default({}), recursive=True) %}
-{% set document = {'apiVersion': 'project.cci.vmware.com/v1alpha2', 'kind': 'Project', 'metadata': metadata, 'spec': item.spec | default({})} %}
-{{ document | combine(item.manifest_overrides | default({}), recursive=True) | to_nice_yaml(indent=2) }}
+apiVersion: project.cci.vmware.com/v1alpha2
+kind: Project
+metadata:
+  name: {{ item.name }}
+spec:
+  description: {{ item.description | default('') | to_json }}

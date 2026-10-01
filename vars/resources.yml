@@ -1,27 +1,27 @@
 ---
-# Illustrative names only. Set site-specific region, class, image, and storage values.
+# Illustrative names only. Replace the deployment-specific values below.
 vcf_projects:
   - name: demo-project
-    spec:
-      description: Ansible-managed example project
+    description: Ansible-managed example project
 
 vcf_vpcs:
   - name: demo-vpc
-    namespace: demo-project
-    spec:
-      regionName: example-region
-      vpcClassName: default
+    project: demo-project
+    region_name: example-region
+    vpc_class_name: default
 
 vcf_supervisor_namespaces:
   - name: demo-workloads
-    namespace: demo-project
-    spec:
-      regionName: example-region
-      className: small
+    project: demo-project
+    region_name: example-region
+    class_name: small
 
 vcf_virtual_machines:
   - name: demo-vm
     namespace: demo-workloads
+    class_name: best-effort-small
+    image_name: example-linux-image
+    storage_class: example-storage-policy
     cloud_init: |
       #cloud-config
       users:
@@ -29,10 +29,6 @@ vcf_virtual_machines:
           shell: /bin/bash
       runcmd:
         - [echo, "VCF Automation example is ready"]
-    spec:
-      className: best-effort-small
-      imageName: example-linux-image
-      storageClass: example-storage-policy
 
 vcf_address_bindings:
   - name: demo-vm-public

@@ -22,10 +22,10 @@ The manifests follow the resource definitions in the
 | Resource | API and kind | Scope / ownership | Required role inputs |
 | --- | --- | --- | --- |
 | Project | `project.cci.vmware.com/v1alpha2`, `Project` | cluster | `name` |
-| VPC | `networking.cci.vmware.com/v1alpha1`, `VPC` | project namespace | `regionName`, `vpcClassName` |
-| Supervisor Namespace | `infrastructure.cci.vmware.com/v1alpha2`, `SupervisorNamespace` | project namespace | `regionName`, `className` |
-| VM | `vmoperator.vmware.com/v1alpha3`, `VirtualMachine` | Supervisor Namespace | `className`, `imageName`, `storageClass` |
-| Address binding | `networking.cci.vmware.com/v1alpha1`, `AddressBinding` | Supervisor Namespace | `vpcRef`, `workloadRef` |
+| VPC | `networking.cci.vmware.com/v1alpha1`, `VPC` | project namespace | `region_name`, `vpc_class_name` |
+| Supervisor Namespace | `infrastructure.cci.vmware.com/v1alpha2`, `SupervisorNamespace` | project namespace | `region_name`, `class_name` |
+| VM | `vmoperator.vmware.com/v1alpha3`, `VirtualMachine` | Supervisor Namespace | `class_name`, `image_name`, `storage_class` |
+| Address binding | `networking.cci.vmware.com/v1alpha1`, `AddressBinding` | Supervisor Namespace | `vpc_name`, `vm_name` |
 
 An AddressBinding deliberately omits an address so that CCI allocates one from
 the selected VPC. Its returned status is available as
@@ -33,10 +33,10 @@ the selected VPC. Its returned status is available as
 Secret and referenced through `spec.bootstrap.cloudInit.rawCloudConfig`; the
 example contains no password, key, or token.
 
-Every list item accepts `metadata` (including `labels` and `annotations`),
-`spec`, and `manifest_overrides`. The last value is recursively merged over the
-whole generated object and is intended for API additions not yet represented by
-the role. Site-specific region, class, image, and storage names in the example
+Each resource uses direct, purpose-specific variables instead of requiring callers
+to construct a Kubernetes `spec` mapping. Optional `labels`, `annotations`,
+`metadata`, and `spec_overrides` mappings remain available for site-specific
+extensions. Site-specific region, class, image, and storage names in the example
 must be replaced with values advertised by the target deployment.
 
 ## Variables and secrets
