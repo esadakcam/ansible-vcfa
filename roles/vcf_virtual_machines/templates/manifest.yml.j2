@@ -1,0 +1,16 @@
+apiVersion: vmoperator.vmware.com/v1alpha3
+kind: VirtualMachine
+metadata:
+  name: {{ item.name }}
+  namespace: {{ item.namespace }}
+spec:
+  className: {{ item.class_name | default('') }}
+  imageName: {{ item.image_name | default('') }}
+  storageClass: {{ item.storage_class | default('') }}
+{% if item.cloud_init is defined %}
+  bootstrap:
+    cloudInit:
+      rawCloudConfig:
+        name: {{ item.name }}-cloud-init
+        key: user-data
+{% endif %}

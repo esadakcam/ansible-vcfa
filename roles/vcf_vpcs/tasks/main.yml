@@ -1,0 +1,29 @@
+---
+- name: Validate requested state and resources
+  ansible.builtin.assert:
+    that:
+      - vcf_resource_state in ['present', 'absent']
+      - item.name is defined
+      - item.name | length > 0
+      - item.project is defined
+      - vcf_resource_state == 'absent' or item.region_name is defined
+      - vcf_resource_state == 'absent' or item.region_name | length > 0
+      - vcf_resource_state == 'absent' or item.vpc_class_name is defined and item.vpc_class_name | length > 0
+  loop: "{{ vcf_vpcs }}"
+  loop_control:
+    label: "{{ item.name | default('unnamed') }}"
+
+- name: Manage VPCs
+  kubernetes.core.k8s:
+    state: "{{ vcf_resource_state }}"
+    definition: >-
+      {{ (lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml)
+         | combine({'metadata': (item.metadata | default({}))
+                                | combine({'labels': item.labels | default({}),
+                                           'annotations': item.annotations | default({})},
+                                          recursive=true),
+                    'spec': item.spec_overrides | default({})}, recursive=true) }}
+    wait: true
+  loop: "{{ vcf_vpcs }}"
+  loop_control:
+    label: "{{ item.project | default('project') }}/{{ item.name }}"

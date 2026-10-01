@@ -1,0 +1,24 @@
+---
+argument_specs:
+  main:
+    short_description: Manage VCF Automation virtual machines
+    options:
+      vcf_resource_state:
+        type: str
+        choices: [present, absent]
+        default: present
+      vcf_virtual_machines:
+        type: list
+        elements: dict
+        required: true
+        options:
+          name: {type: str, required: true}
+          labels: {type: dict}
+          annotations: {type: dict}
+          metadata: {type: dict}
+          spec_overrides: {type: dict}
+          namespace: {type: str}
+          class_name: {type: str}
+          image_name: {type: str}
+          storage_class: {type: str}
+          cloud_init: {type: str, no_log: true}

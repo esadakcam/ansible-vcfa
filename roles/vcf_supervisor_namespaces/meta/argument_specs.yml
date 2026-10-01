@@ -1,0 +1,22 @@
+---
+argument_specs:
+  main:
+    short_description: Manage VCF Automation Supervisor Namespaces
+    options:
+      vcf_resource_state:
+        type: str
+        choices: [present, absent]
+        default: present
+      vcf_supervisor_namespaces:
+        type: list
+        elements: dict
+        required: true
+        options:
+          name: {type: str, required: true}
+          labels: {type: dict}
+          annotations: {type: dict}
+          metadata: {type: dict}
+          spec_overrides: {type: dict}
+          project: {type: str}
+          region_name: {type: str}
+          class_name: {type: str}

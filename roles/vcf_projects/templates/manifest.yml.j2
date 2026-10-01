@@ -1,0 +1,6 @@
+apiVersion: project.cci.vmware.com/v1alpha2
+kind: Project
+metadata:
+  name: {{ item.name }}
+spec:
+  description: {{ item.description | default('') | to_json }}

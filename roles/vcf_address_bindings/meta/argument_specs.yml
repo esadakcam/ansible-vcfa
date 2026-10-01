@@ -1,0 +1,22 @@
+---
+argument_specs:
+  main:
+    short_description: Manage VCF Automation address bindings
+    options:
+      vcf_resource_state:
+        type: str
+        choices: [present, absent]
+        default: present
+      vcf_address_bindings:
+        type: list
+        elements: dict
+        required: true
+        options:
+          name: {type: str, required: true}
+          labels: {type: dict}
+          annotations: {type: dict}
+          metadata: {type: dict}
+          spec_overrides: {type: dict}
+          namespace: {type: str}
+          vpc_name: {type: str}
+          vm_name: {type: str}

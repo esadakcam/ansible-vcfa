@@ -1,0 +1,8 @@
+apiVersion: networking.cci.vmware.com/v1alpha1
+kind: VPC
+metadata:
+  name: {{ item.name }}
+  namespace: {{ item.project }}
+spec:
+  regionName: {{ item.region_name | default('') }}
+  vpcClassName: {{ item.vpc_class_name | default('') }}

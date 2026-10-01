@@ -1,0 +1,36 @@
+---
+- name: Validate requested state and resources
+  ansible.builtin.assert:
+    that:
+      - vcf_resource_state in ['present', 'absent']
+      - item.name is defined
+      - item.name | length > 0
+      - item.namespace is defined
+      - vcf_resource_state == 'absent' or item.vpc_name is defined
+      - vcf_resource_state == 'absent' or item.vm_name is defined
+  loop: "{{ vcf_address_bindings }}"
+  loop_control:
+    label: "{{ item.name | default('unnamed') }}"
+
+- name: Manage address bindings
+  kubernetes.core.k8s:
+    state: "{{ vcf_resource_state }}"
+    definition: >-
+      {{ (lookup('ansible.builtin.template', 'manifest.yml.j2') | from_yaml)
+         | combine({'metadata': (item.metadata | default({}))
+                                | combine({'labels': item.labels | default({}),
+                                           'annotations': item.annotations | default({})},
+                                          recursive=true),
+                    'spec': item.spec_overrides | default({})}, recursive=true) }}
+    wait: true
+  loop: "{{ vcf_address_bindings }}"
+  loop_control:
+    label: "{{ item.namespace | default('cluster') }}/{{ item.name }}"
+  register: vcf_address_binding_results
+
+- name: Expose address binding resources and allocation status
+  ansible.builtin.set_fact:
+    vcf_address_binding_statuses: >-
+      {{ vcf_address_binding_results.results | default([])
+         | selectattr('result', 'defined') | map(attribute='result')
+         | selectattr('status', 'defined') | map(attribute='status') | list }}

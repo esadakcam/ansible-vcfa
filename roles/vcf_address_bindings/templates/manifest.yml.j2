@@ -1,0 +1,12 @@
+apiVersion: networking.cci.vmware.com/v1alpha1
+kind: AddressBinding
+metadata:
+  name: {{ item.name }}
+  namespace: {{ item.namespace }}
+spec:
+  vpcRef:
+    name: {{ item.vpc_name | default('') }}
+  workloadRef:
+    apiVersion: vmoperator.vmware.com/v1alpha3
+    kind: VirtualMachine
+    name: {{ item.vm_name | default('') }}

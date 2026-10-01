@@ -1,0 +1,50 @@
+---
+- name: Validate context inputs
+  ansible.builtin.assert:
+    that:
+      - vcf_context_state in ['present', 'replace', 'absent']
+      - vcf_context_name | length > 0
+      - vcf_context_state == 'absent' or vcf_context_endpoint | length > 0
+      - vcf_context_state == 'absent' or vcf_context_tenant_name | length > 0
+      - vcf_context_state == 'absent' or vcf_context_api_token | length > 0
+    fail_msg: Context name, endpoint, tenant, and token are required when creating a context.
+  no_log: true
+
+- name: Inspect configured VCF contexts
+  ansible.builtin.command:
+    argv: ["{{ vcf_cli_path }}", context, list, --output, json]
+  register: vcf_context_list
+  changed_when: false
+  failed_when: vcf_context_list.rc != 0
+
+- name: Determine whether the context exists
+  ansible.builtin.set_fact:
+    vcf_context_exists: >-
+      {{ vcf_context_name in (((vcf_context_list.stdout | default('[]')) | from_json)
+         | map(attribute='name') | list) }}
+
+- name: Delete VCF context
+  ansible.builtin.command:
+    argv: ["{{ vcf_cli_path }}", context, delete, "{{ vcf_context_name }}"]
+  when:
+    - vcf_context_exists
+    - vcf_context_state in ['replace', 'absent']
+
+- name: Create VCF context
+  ansible.builtin.command:
+    argv:
+      - "{{ vcf_cli_path }}"
+      - context
+      - create
+      - "{{ vcf_context_name }}"
+      - --endpoint
+      - "{{ vcf_context_endpoint }}"
+      - --type
+      - cci
+      - --tenant-name
+      - "{{ vcf_context_tenant_name }}"
+      - --api-token
+      - "{{ vcf_context_api_token }}"
+      - --set-current
+  when: vcf_context_state == 'replace' or (vcf_context_state == 'present' and not vcf_context_exists)
+  no_log: true

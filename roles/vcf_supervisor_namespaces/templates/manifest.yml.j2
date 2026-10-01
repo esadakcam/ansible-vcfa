@@ -1,0 +1,8 @@
+apiVersion: infrastructure.cci.vmware.com/v1alpha2
+kind: SupervisorNamespace
+metadata:
+  name: {{ item.name }}
+  namespace: {{ item.project }}
+spec:
+  regionName: {{ item.region_name | default('') }}
+  className: {{ item.class_name | default('') }}

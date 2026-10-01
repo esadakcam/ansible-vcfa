@@ -1,0 +1,37 @@
+---
+# Illustrative names only. Replace the deployment-specific values below.
+vcf_projects:
+  - name: demo-project
+    description: Ansible-managed example project
+
+vcf_vpcs:
+  - name: demo-vpc
+    project: demo-project
+    region_name: example-region
+    vpc_class_name: default
+
+vcf_supervisor_namespaces:
+  - name: demo-workloads
+    project: demo-project
+    region_name: example-region
+    class_name: small
+
+vcf_virtual_machines:
+  - name: demo-vm
+    namespace: demo-workloads
+    class_name: best-effort-small
+    image_name: example-linux-image
+    storage_class: example-storage-policy
+    cloud_init: |
+      #cloud-config
+      users:
+        - name: demo
+          shell: /bin/bash
+      runcmd:
+        - [echo, "VCF Automation example is ready"]
+
+vcf_address_bindings:
+  - name: demo-vm-public
+    namespace: demo-workloads
+    vpc_name: demo-vpc
+    vm_name: demo-vm

@@ -1,0 +1,17 @@
+---
+- name: Destroy the VCF Automation example
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars/resources.yml
+  vars:
+    vcf_resource_state: absent
+  roles:
+    - role: vcf_address_bindings
+    - role: vcf_virtual_machines
+    - role: vcf_supervisor_namespaces
+    - role: vcf_vpcs
+    - role: vcf_projects
+    - role: vcf_context
+      vars:
+        vcf_context_state: "{{ vcf_destroy_context | default(false) | bool | ternary('absent', 'present') }}"

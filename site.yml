@@ -1,0 +1,13 @@
+---
+- name: Create the VCF Automation example
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars/resources.yml
+  roles:
+    - role: vcf_context
+    - role: vcf_projects
+    - role: vcf_vpcs
+    - role: vcf_supervisor_namespaces
+    - role: vcf_virtual_machines
+    - role: vcf_address_bindings
